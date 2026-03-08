@@ -1,0 +1,14 @@
+/* OpenDyslexic Font - Dyslexia-friendly font */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://www.opendyslexic.org/downloads/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://www.opendyslexic.org/downloads/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}

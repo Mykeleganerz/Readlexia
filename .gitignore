@@ -1,0 +1,10 @@
+
+@"
+node_modules/
+.env
+.DS_Store
+dist/
+.vite/
+"@ | Out-File -FilePath .gitignore -Encoding UTF8
+
+git add .gitignore
