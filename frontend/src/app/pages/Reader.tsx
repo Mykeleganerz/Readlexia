@@ -6,7 +6,14 @@ import { useAccessibility } from '../contexts/AccessibilityContext';
 import { Navigation } from '../components/Navigation';
 import { ReadingRuler } from '../components/ReadingRuler';
 import { SyllableSplitter } from '../components/SyllableSplitter';
-import { ArrowLeft, Settings, ZoomIn, ZoomOut, Volume2, Square } from 'lucide-react';
+import {
+  ArrowLeft,
+  Settings,
+  ZoomIn,
+  ZoomOut,
+  Volume2,
+  Square,
+} from 'lucide-react';
 
 export function Reader() {
   const { documentId } = useParams();
@@ -39,8 +46,9 @@ export function Reader() {
   }, []);
 
   const toggleSpeech = () => {
-    if (!window.speechSynthesis) return alert('Text-to-speech not supported in this browser.');
-    
+    if (!window.speechSynthesis)
+      return alert('Text-to-speech not supported in this browser.');
+
     if (isPlaying) {
       window.speechSynthesis.cancel();
       setIsPlaying(false);
@@ -151,14 +159,16 @@ export function Reader() {
             <button
               onClick={toggleSpeech}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                isPlaying 
-                  ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' 
+                isPlaying
+                  ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               }`}
               title={isPlaying ? 'Stop reading' : 'Read Aloud'}
             >
               {isPlaying ? <Square size={20} /> : <Volume2 size={20} />}
-              <span className="hidden sm:inline">{isPlaying ? 'Stop' : 'Read Aloud'}</span>
+              <span className="hidden sm:inline">
+                {isPlaying ? 'Stop' : 'Read Aloud'}
+              </span>
             </button>
 
             <button

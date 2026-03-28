@@ -53,7 +53,9 @@ export function Login() {
       if (res && res.resetToken) {
         // 2. Immediately use it to set the new password
         await authService.resetPassword(res.resetToken, resetNewPassword);
-        setResetMessage('Password has been successfully updated! You can now log in.');
+        setResetMessage(
+          'Password has been successfully updated! You can now log in.',
+        );
         setResetEmail('');
         setResetNewPassword('');
         setTimeout(() => {
@@ -64,7 +66,9 @@ export function Login() {
         setResetError('Failed to generate reset token. Email may not exist.');
       }
     } catch (err: any) {
-      setResetError(err.message || 'Failed to reset password. Please try again.');
+      setResetError(
+        err.message || 'Failed to reset password. Please try again.',
+      );
     }
   };
 
@@ -86,7 +90,9 @@ export function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <LogIn className="text-blue-600" size={32} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome Back
+          </h1>
           <p className="text-gray-600">Sign in to continue to ReaDlexia</p>
         </div>
 
@@ -97,9 +103,12 @@ export function Login() {
                 {error}
               </div>
             )}
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -114,7 +123,10 @@ export function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Password
               </label>
               <input
@@ -138,11 +150,15 @@ export function Login() {
           </form>
         ) : (
           <form onSubmit={handleForgotPassword} className="space-y-6">
-             <div className="text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
-                Enter your email address and a new password below to reset your password directly.
-             </div>
+            <div className="text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
+              Enter your email address and a new password below to reset your
+              password directly.
+            </div>
             <div>
-              <label htmlFor="resetEmail" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="resetEmail"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -156,7 +172,10 @@ export function Login() {
               />
             </div>
             <div>
-              <label htmlFor="resetNewPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="resetNewPassword"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 New Password
               </label>
               <input
@@ -202,7 +221,10 @@ export function Login() {
               </button>
               <p className="text-gray-600 mt-4">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+                <Link
+                  to="/register"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
                   Create one
                 </Link>
               </p>
