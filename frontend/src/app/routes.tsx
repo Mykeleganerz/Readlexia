@@ -10,6 +10,9 @@ import { Settings } from './pages/Settings';
 import { Help } from './pages/Help';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminUserManagement } from './pages/AdminUserManagement';
+import { ExerciseSelector } from './pages/ExerciseSelector';
+import { ExercisePage } from './pages/ExercisePage';
+import { ExerciseResults } from './pages/ExerciseResults';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -78,6 +81,30 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Settings />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/exercise-selector/:documentId',
+    element: (
+      <ProtectedRoute>
+        <ExerciseSelector />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/exercise/:exerciseId',
+    element: (
+      <ProtectedRoute>
+        <ExercisePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/exercise-results/:exerciseId',
+    element: (
+      <ProtectedRoute>
+        <ExerciseResults />
       </ProtectedRoute>
     ),
   },

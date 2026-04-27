@@ -2,13 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useDocuments } from '../contexts/DocumentContext';
 import { Navigation } from '../components/Navigation';
-import { FileText, BookOpen, Settings, TrendingUp } from 'lucide-react';
-import { useEffect } from 'react';
+import { FileText, BookOpen, Settings, Tag } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  documentsService,
+  type DashboardStats,
+} from '../../services/documents.service';
 
 export function Dashboard() {
   const { user } = useAuth();
   const { documents } = useDocuments();
   const navigate = useNavigate();
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
+    null,
+  );
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -16,7 +24,39 @@ export function Dashboard() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    const loadDashboardStats = async () => {
+      try {
+        setStatsLoading(true);
+        const stats = await documentsService.getDashboardStats();
+        setDashboardStats(stats);
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    if (user) {
+      loadDashboardStats();
+    }
+  }, [user]);
+
   if (!user) return null;
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'No activity yet';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,18 +93,24 @@ export function Dashboard() {
                 <BookOpen className="text-green-600" size={24} />
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-800">12</div>
-            <div className="text-gray-600">Reading Sessions</div>
+            <div className="text-3xl font-bold text-gray-800">
+              {statsLoading ? '...' : dashboardStats?.totalWords || 0}
+            </div>
+            <div className="text-gray-600">Total Words Read</div>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="text-purple-600" size={24} />
+                <Tag className="text-purple-600" size={24} />
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-800">87%</div>
-            <div className="text-gray-600">Progress</div>
+            <div className="text-3xl font-bold text-gray-800">
+              {statsLoading
+                ? '...'
+                : dashboardStats?.mostUsedCategory || 'None'}
+            </div>
+            <div className="text-gray-600">Most Used Category</div>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
@@ -117,6 +163,29 @@ export function Dashboard() {
           </div>
         </div>
 
+        {/* Stats Info */}
+        {dashboardStats && !statsLoading && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <h3 className="font-semibold text-blue-900 mb-3">
+              Your Reading Stats
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4 text-sm text-blue-800">
+              <div>
+                <span className="font-semibold">Average Document Length:</span>{' '}
+                {dashboardStats.averageDocumentLength} words
+              </div>
+              <div>
+                <span className="font-semibold">Last Activity:</span>{' '}
+                {formatDate(dashboardStats.lastActivityDate)}
+              </div>
+              <div>
+                <span className="font-semibold">Documents:</span>{' '}
+                {dashboardStats.totalDocuments}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recent Documents */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -150,13 +219,40 @@ export function Dashboard() {
                         {doc.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {doc.category} • {doc.uploadDate}
+                        {doc.category} •{' '}
+                        {doc.createdAt
+                          ? new Date(doc.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              },
+                            )
+                          : 'Unknown Date'}
                       </p>
                     </div>
                   </div>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    Read
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/reader/${doc.id}`);
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                    >
+                      Read
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/exercise-selector/${doc.id}`);
+                      }}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"
+                    >
+                      Generate Exercise
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

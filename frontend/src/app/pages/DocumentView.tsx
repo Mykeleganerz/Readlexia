@@ -4,6 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDocuments } from '../contexts/DocumentContext';
 import { Navigation } from '../components/Navigation';
 import { Upload, FileText, Trash2, Search, Filter } from 'lucide-react';
+import {
+  extractTextFromPDF,
+  extractTextFromDOCX,
+  extractTextFromTXT,
+} from '../../utils/fileParser';
 
 export function DocumentView() {
   const { user } = useAuth();
@@ -24,16 +29,48 @@ export function DocumentView() {
 
   if (!user) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === 'text/plain') {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        setContent(text);
-        setTitle(file.name.replace('.txt', ''));
-      };
-      reader.readAsText(file);
+    if (!file) return;
+
+    try {
+      let extractedText = '';
+      const fileName = file.name;
+
+      // Handle different file types
+      if (fileName.endsWith('.txt') || file.type === 'text/plain') {
+        extractedText = await extractTextFromTXT(file);
+      } else if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
+        extractedText = await extractTextFromPDF(file);
+      } else if (
+        fileName.endsWith('.docx') ||
+        file.type ===
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ) {
+        extractedText = await extractTextFromDOCX(file);
+      } else {
+        alert(
+          'Unsupported file type. Please upload a .txt, .pdf, or .docx file.',
+        );
+        return;
+      }
+
+      if (!extractedText || extractedText.trim().length === 0) {
+        alert('The file appears to be empty. Please try another file.');
+        return;
+      }
+
+      setContent(extractedText);
+      setTitle(
+        fileName.replace('.txt', '').replace('.pdf', '').replace('.docx', ''),
+      );
+    } catch (error) {
+      console.error('File upload error:', error);
+      alert(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : 'Error reading file. Please try another file.',
+      );
     }
   };
 
@@ -96,11 +133,11 @@ export function DocumentView() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Upload Text File (.txt)
+                  Upload Document (.txt, .pdf, .docx)
                 </label>
                 <input
                   type="file"
-                  accept=".txt"
+                  accept=".txt,.pdf,.docx"
                   onChange={handleFileUpload}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                 />
@@ -243,6 +280,12 @@ export function DocumentView() {
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                     >
                       Read
+                    </button>
+                    <button
+                      onClick={() => navigate(`/exercise-selector/${doc.id}`)}
+                      className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                    >
+                      Generate Exercise
                     </button>
                     <button
                       onClick={() => {

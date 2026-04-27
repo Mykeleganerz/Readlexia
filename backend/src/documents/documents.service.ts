@@ -10,7 +10,7 @@ export class DocumentsService {
   constructor(
     @InjectRepository(Document)
     private documentsRepository: Repository<Document>,
-  ) {}
+  ) { }
 
   async create(userId: number, createDocumentDto: CreateDocumentDto): Promise<Document> {
     const document = this.documentsRepository.create({
@@ -68,5 +68,59 @@ export class DocumentsService {
     }
 
     await this.documentsRepository.remove(document);
+  }
+
+  async getDashboardStats(userId: number): Promise<{
+    totalWords: number;
+    totalDocuments: number;
+    mostUsedCategory: string;
+    averageDocumentLength: number;
+    lastActivityDate: Date | null;
+  }> {
+    const documents = await this.documentsRepository.find({
+      where: { userId },
+    });
+
+    if (documents.length === 0) {
+      return {
+        totalWords: 0,
+        totalDocuments: 0,
+        mostUsedCategory: 'None',
+        averageDocumentLength: 0,
+        lastActivityDate: null,
+      };
+    }
+
+    // Calculate total words
+    const totalWords = documents.reduce((sum, doc) => {
+      const wordCount = doc.content.split(/\s+/).filter(word => word.length > 0).length;
+      return sum + wordCount;
+    }, 0);
+
+    // Calculate average document length
+    const averageDocumentLength = Math.round(totalWords / documents.length);
+
+    // Find most used category
+    const categoryCount = documents.reduce((acc, doc) => {
+      acc[doc.category] = (acc[doc.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const mostUsedCategory = Object.keys(categoryCount).reduce((a, b) =>
+      categoryCount[a] > categoryCount[b] ? a : b,
+    ) || 'General';
+
+    // Get last activity date (most recent document update)
+    const lastActivityDate = documents.reduce((latest, doc) => {
+      return doc.updatedAt > latest ? doc.updatedAt : latest;
+    }, documents[0].updatedAt);
+
+    return {
+      totalWords,
+      totalDocuments: documents.length,
+      mostUsedCategory,
+      averageDocumentLength,
+      lastActivityDate,
+    };
   }
 }

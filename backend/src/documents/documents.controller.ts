@@ -21,7 +21,7 @@ import { Document } from './document.entity';
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) {}
+  constructor(private readonly documentsService: DocumentsService) { }
 
   @Post()
   create(@Request() req, @Body() createDocumentDto: CreateDocumentDto): Promise<Document> {
@@ -35,6 +35,11 @@ export class DocumentsController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     return this.documentsService.findAll(req.user.userId, page, limit);
+  }
+
+  @Get('stats/dashboard')
+  getDashboardStats(@Request() req) {
+    return this.documentsService.getDashboardStats(req.user.userId);
   }
 
   @Get(':id')

@@ -17,6 +17,14 @@ export interface DocumentsListResponse {
   lastPage: number;
 }
 
+export interface DashboardStats {
+  totalWords: number;
+  totalDocuments: number;
+  mostUsedCategory: string;
+  averageDocumentLength: number;
+  lastActivityDate: string | null;
+}
+
 export const documentsService = {
   async getAll(page = 1, limit = 10): Promise<DocumentsListResponse> {
     const response = await apiClient.get<DocumentsListResponse>('/documents', {
@@ -42,5 +50,10 @@ export const documentsService = {
 
   async delete(id: number): Promise<void> {
     await apiClient.delete(`/documents/${id}`);
+  },
+
+  async getDashboardStats(): Promise<DashboardStats> {
+    const response = await apiClient.get<DashboardStats>('/documents/stats/dashboard');
+    return response.data;
   },
 };

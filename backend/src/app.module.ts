@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ExercisesModule } from './exercises/exercises.module';
 import { validate } from './common/config/env.validation';
 
 @Module({
@@ -28,8 +29,9 @@ import { validate } from './common/config/env.validation';
     UsersModule,
     AuthModule,
     DocumentsModule,
+    ExercisesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
